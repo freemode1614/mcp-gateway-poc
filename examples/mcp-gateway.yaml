@@ -1,0 +1,19 @@
+gateway:
+  host: 127.0.0.1
+  port: 8765
+  log_level: info
+  reload:
+    enabled: true
+    debounce_ms: 500
+
+backends:
+  # Example stdio backend: a local subprocess speaking MCP over stdin/stdout.
+  # Set PYTHON to your venv interpreter so the `mcp` package is importable:
+  #   export PYTHON="$(pwd)/.venv/bin/python"
+  #   mcp-gateway --config examples/mcp-gateway.yaml
+  - name: mock
+    transport: stdio
+    command: ${env:PYTHON}
+    args:
+      - tests/fixtures/mock_mcp_server.py
+    startup_timeout_s: 10.0
