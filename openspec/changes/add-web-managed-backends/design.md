@@ -82,14 +82,17 @@ list into a much bigger refactor.
 
 **Choice:** `/web/` is a Vite project. `npm create vite@latest
 -- --template react-ts` is the scaffold; we add `@tanstack/react-query`,
-`react-router-dom@7`, ESLint, Vitest on top.
+`react-router-dom@8`, Biome, Vitest on top.
 
 **Why:** Vite gives us sub-second dev rebuilds and a single `dist/`
 output that the backend can serve as static files. React 19 is the
 current stable and brings the new compiler-friendly features (Actions,
 `use()` hook, ref-as-prop) we want available even if the MVP doesn't
 exercise them. TypeScript catches the shape mismatches between the SPA
-and the backend's Pydantic models at build time.
+and the backend's Pydantic models at build time. Biome (single Rust
+binary; replaces ESLint + Prettier) keeps the lint/format pipeline
+aligned with the workspace's existing `ruff` + `ty` setup — same
+"single tool, fast, config in repo root" shape.
 
 **Alternative considered:** Next.js 15. Skipped because it drags in a
 Node server we don't need for a single-page admin UI, and we'd have to
@@ -110,9 +113,9 @@ reimplement for every screen.
 screen, doesn't scale to "list + create modal + edit modal + reload
 toast" without ceremony.
 
-### D4: React Router 7 for the single `/admin` route
+### D4: React Router 8 for the single `/admin` route
 
-**Choice:** `react-router-dom@7` with one route at `/admin` and a
+**Choice:** `react-router-dom@8` with one route at `/admin` and a
 single `<BackendsPage />`. 404 routes fall through to a "not found"
 component.
 

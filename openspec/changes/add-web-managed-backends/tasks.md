@@ -31,7 +31,9 @@
 
 ## 5. `/web/` — React SPA
 
-- [ ] 5.1 Add runtime deps: `react@19`, `react-dom@19`, `react-router-dom@7`, `@tanstack/react-query`, `openapi-typescript`, `clsx`. Dev deps: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `eslint`, `@typescript-eslint/*`, `prettier`.
+- [ ] 5.1 Add runtime deps: `react@19`, `react-dom@19`, `react-router-dom@8`, `@tanstack/react-query`, `openapi-typescript`, `clsx`. Dev deps: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@biomejs/biome`.
+- [ ] 5.1a Add a `biome.json` at `/web/` with the project's recommended rule set (correctness + style + a11y), single quotes, 2-space indent, trailing commas; add `biome-ignore` comments only for documented exceptions.
+- [ ] 5.1b Add `npm run lint` and `npm run format` scripts that invoke `biome check` and `biome format --write` respectively; wire `make lint-web` and `make format-web` in the root Makefile so the SPA's quality gates mirror the gateway's.
 - [ ] 5.2 Configure `vite.config.ts` with a dev proxy: `/api/*` and `/admin/reload` forwarded to `http://127.0.0.1:8080`.
 - [ ] 5.3 Set up `src/main.tsx` with `QueryClientProvider`, `BrowserRouter`, and a single `<App />` route at `/admin`.
 - [ ] 5.4 Build `src/api/client.ts`: typed `fetch` wrappers generated from `packages/web-api/openapi.json` via `openapi-typescript`.

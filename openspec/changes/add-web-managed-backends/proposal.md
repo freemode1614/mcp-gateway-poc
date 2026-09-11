@@ -71,7 +71,7 @@ the new set into the gateway's existing `BackendConnectionManager`.
   Node project.
 - **New dependencies** (`/web/` Node): `react@19`, `react-dom`,
   `vite`, `@vitejs/plugin-react`, `typescript`, `@tanstack/react-query`,
-  `react-router-dom@7`, plus dev deps for ESLint and Vitest.
+  `react-router-dom@8`, plus dev deps for Biome and Vitest.
 - **New dev dependency** (root): nothing — `docker compose` is the only
   external requirement, plus Node.js ≥18 for the SPA toolchain.
 - **Modified gateway**: 1 new endpoint (`/admin/reload`), 1 new env var,
