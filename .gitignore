@@ -17,6 +17,11 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
+# Archify visual-check sidecars (regenerate via `archify visual-check`)
+*.visual-check.png
+*.visual-check.json
+*.visual-check.html
+
 # OS / editor
 .DS_Store
 .idea/

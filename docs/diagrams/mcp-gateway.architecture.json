@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "mcp-gateway — Local MCP Aggregation PoC",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [40, 80],
+    "cols": 5,
+    "gapX": 80,
+    "gapY": 80,
+    "cellW": 170,
+    "cellH": 100
+  },
+  "components": [
+    {
+      "id": "mcp_client",
+      "type": "external",
+      "label": "MCP Client",
+      "sublabel": "Claude / IDE",
+      "row": 1,
+      "col": 0
+    },
+    {
+      "id": "frontend",
+      "type": "frontend",
+      "label": "Frontend",
+      "sublabel": "FastAPI + JSON-RPC",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "registry",
+      "type": "database",
+      "label": "Registry",
+      "sublabel": "prefixed catalog",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "router",
+      "type": "backend",
+      "label": "Router",
+      "sublabel": "prefix dispatch",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "manager",
+      "type": "backend",
+      "label": "Manager",
+      "sublabel": "lifecycle + hot reload",
+      "row": 2,
+      "col": 2
+    },
+    {
+      "id": "stdio_backend",
+      "type": "backend",
+      "label": "StdioBackend",
+      "sublabel": "subprocess",
+      "row": 0,
+      "col": 3
+    },
+    {
+      "id": "sse_backend",
+      "type": "backend",
+      "label": "HttpSseBackend",
+      "sublabel": "streamable HTTP",
+      "row": 1,
+      "col": 3
+    },
+    {
+      "id": "watcher",
+      "type": "cloud",
+      "label": "ConfigWatcher",
+      "sublabel": "watchfiles",
+      "row": 3,
+      "col": 3
+    },
+    {
+      "id": "local_mcp",
+      "type": "external",
+      "label": "Local MCP",
+      "sublabel": "child process",
+      "row": 0,
+      "col": 4
+    },
+    {
+      "id": "remote_mcp",
+      "type": "external",
+      "label": "Remote MCP",
+      "sublabel": "streamable HTTP",
+      "row": 1,
+      "col": 4
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Gateway process (127.0.0.1)",
+      "wraps": [
+        "frontend",
+        "router",
+        "registry",
+        "manager",
+        "watcher",
+        "stdio_backend",
+        "sse_backend"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-frontend",
+      "from": "mcp_client",
+      "to": "frontend",
+      "label": "HTTP + SSE",
+      "variant": "emphasis"
+    },
+    {
+      "id": "frontend-router",
+      "from": "frontend",
+      "to": "router",
+      "label": "dispatch"
+    },
+    {
+      "id": "router-registry",
+      "from": "router",
+      "to": "registry",
+      "label": "lookup"
+    },
+    {
+      "id": "router-manager",
+      "from": "router",
+      "to": "manager",
+      "label": "resolve",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "manager-stdio",
+      "from": "manager",
+      "to": "stdio_backend",
+      "label": "spawn",
+      "toSide": "bottom"
+    },
+    {
+      "id": "manager-sse",
+      "from": "manager",
+      "to": "sse_backend",
+      "label": "connect",
+      "toSide": "left"
+    },
+    {
+      "id": "stdio-local",
+      "from": "stdio_backend",
+      "to": "local_mcp",
+      "label": "stdio"
+    },
+    {
+      "id": "sse-remote",
+      "from": "sse_backend",
+      "to": "remote_mcp",
+      "label": "streamable HTTP"
+    },
+    {
+      "id": "watcher-manager",
+      "from": "watcher",
+      "to": "manager",
+      "label": "reload"
+    }
+  ]
+}
