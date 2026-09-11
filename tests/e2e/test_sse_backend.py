@@ -9,7 +9,6 @@ import time
 from pathlib import Path
 
 import httpx
-import pytest
 
 from mcp_gateway.config import GatewayConfig
 from mcp_gateway.core import BackendConnectionManager
@@ -54,7 +53,7 @@ async def test_sse_backend_end_to_end() -> None:
                     {
                         "name": "remote",
                         "transport": "sse",
-                        "url": f"http://127.0.0.1:{port}/sse",
+                        "url": f"http://127.0.0.1:{port}/mcp",
                         "startup_timeout_s": 10.0,
                     }
                 ],
@@ -72,7 +71,7 @@ async def test_sse_backend_end_to_end() -> None:
             app = build_app(manager=mgr)
             transport = httpx.ASGITransport(app=app)
             async with httpx.AsyncClient(
-                transport=transport, base_url="http://test"
+                transport=transport, base_url="http://test", trust_env=False
             ) as c:
                 resp = await c.post(
                     "/messages",
