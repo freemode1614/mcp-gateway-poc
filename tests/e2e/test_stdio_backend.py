@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import httpx
-import pytest
 
 from mcp_gateway.config import GatewayConfig
 from mcp_gateway.core import BackendConnectionManager
@@ -16,9 +15,7 @@ FIXTURES = Path(__file__).resolve().parent.parent / "fixtures"
 
 
 def _config(backends: list[dict]) -> GatewayConfig:
-    return GatewayConfig.model_validate(
-        {"gateway": {"port": 8765}, "backends": backends}
-    )
+    return GatewayConfig.model_validate({"gateway": {"port": 8765}, "backends": backends})
 
 
 async def test_stdio_backend_end_to_end() -> None:

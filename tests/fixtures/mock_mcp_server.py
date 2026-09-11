@@ -24,7 +24,6 @@ from mcp.types import (
     Tool,
 )
 
-
 server: Server = Server("mock_backend")
 
 
@@ -90,11 +89,7 @@ async def _read_resource(_ctx, params: ReadResourceRequestParams) -> ReadResourc
     uri = str(params.uri)
     if uri == "mock://hello":
         return ReadResourceResult(
-            contents=[
-                TextResourceContents(
-                    uri=uri, mimeType="text/plain", text="hello world"
-                )
-            ]
+            contents=[TextResourceContents(uri=uri, mimeType="text/plain", text="hello world")]
         )
     raise ValueError(f"unknown resource: {uri}")
 

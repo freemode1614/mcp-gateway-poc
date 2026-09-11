@@ -158,9 +158,7 @@ async def test_manager_reload_via_yaml_change(tmp_path: Path) -> None:
     try:
         assert {b.name for b in mgr.list_backends()} == {"github"}
 
-        watcher = ConfigWatcher(
-            config_path=cfg_path, debounce_ms=50, on_change=mgr.reload
-        )
+        watcher = ConfigWatcher(config_path=cfg_path, debounce_ms=50, on_change=mgr.reload)
         await watcher.start()
         try:
             await asyncio.sleep(0.1)

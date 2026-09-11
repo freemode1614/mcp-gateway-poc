@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from ..backend import (
     BackendConnection,
-    BackendState,
     FakeBackendConnection,
     HttpSseBackend,
     StdioBackend,
@@ -85,9 +84,7 @@ class BackendConnectionManager:
             old_cfg = self._configs_by_name.get(name)
             new_cfg = new_by_name[name]
             old_sig = (
-                _backend_signature_for_config(old_cfg)
-                if old_cfg is not None
-                else ("unknown",)
+                _backend_signature_for_config(old_cfg) if old_cfg is not None else ("unknown",)
             )
             new_sig = _backend_signature_for_config(new_cfg)
             if old_sig != new_sig:

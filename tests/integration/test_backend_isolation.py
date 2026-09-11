@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
-import os
-import signal
 import sys
 from pathlib import Path
 
 import httpx
-import pytest
 
 from mcp_gateway.backend import BackendState
 from mcp_gateway.config import GatewayConfig

@@ -29,9 +29,7 @@ async def test_dispatch_tool_call_strips_prefix_and_forwards() -> None:
     await r.add_backend_tools("github", backend.tools)
     router = Router(r, lambda name: backend if name == "github" else None)
 
-    result = await router.dispatch_tool_call(
-        "github.create_issue", {"title": "x"}
-    )
+    result = await router.dispatch_tool_call("github.create_issue", {"title": "x"})
     assert backend.call_log == [("create_issue", {"title": "x"})]
     assert result.is_error is False
 
@@ -92,7 +90,7 @@ async def test_dispatch_resource_read_strips_prefix() -> None:
     await r.add_backend_resources("github", backend.resources)
     router = Router(r, lambda name: backend)
     prefixed = r.list_resources()[0].prefixed_name
-    result = await router.dispatch_resource_read(prefixed)
+    await router.dispatch_resource_read(prefixed)
     assert backend.read_log == ["repo://foo/readme"]
 
 

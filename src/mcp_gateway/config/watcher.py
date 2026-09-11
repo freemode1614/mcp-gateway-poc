@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -62,13 +61,8 @@ class ConfigWatcher:
 
     async def _run(self) -> None:
         assert self._stop_event is not None
-        stop_event = self._stop_event
-        watch_task = asyncio.create_task(
-            self._watch_loop(), name="config-watcher-fswatch"
-        )
-        debounce_task = asyncio.create_task(
-            self._debounce_loop(), name="config-watcher-debounce"
-        )
+        watch_task = asyncio.create_task(self._watch_loop(), name="config-watcher-fswatch")
+        debounce_task = asyncio.create_task(self._debounce_loop(), name="config-watcher-debounce")
         try:
             done, _ = await asyncio.wait(
                 {watch_task, debounce_task},
@@ -77,8 +71,9 @@ class ConfigWatcher:
             for t in done:
                 if t.cancelled():
                     continue
-                if t.exception() is not None:
-                    raise t.exception()
+                exc = t.exception()
+                if exc is not None:
+                    raise exc
         finally:
             for t in (watch_task, debounce_task):
                 if not t.done():
@@ -113,9 +108,7 @@ class ConfigWatcher:
             self._dirty_event.clear()
             if self._debounce_s > 0:
                 try:
-                    await asyncio.wait_for(
-                        stop_event.wait(), timeout=self._debounce_s
-                    )
+                    await asyncio.wait_for(stop_event.wait(), timeout=self._debounce_s)
                     return
                 except TimeoutError:
                     pass

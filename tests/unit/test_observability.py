@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import io
 import json
 
-import structlog
+import pytest
 
 from mcp_gateway.observability import (
     configure_logging,

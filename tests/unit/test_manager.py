@@ -5,12 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import pytest
-
-from mcp_gateway.backend import FakeBackendConnection
+from mcp_gateway.backend import BackendState, FakeBackendConnection
 from mcp_gateway.config import GatewayConfig
 from mcp_gateway.core import BackendConnectionManager
-from mcp_gateway.backend import BackendState
 
 
 def _config(backends: list[Any]) -> GatewayConfig:
@@ -53,13 +50,9 @@ async def test_manager_starts_and_registers_backends() -> None:
 
 
 async def test_manager_starts_failed_backend_and_marks_unhealthy() -> None:
-    fake = FakeBackendConnection(
-        name="bad", raise_on_start=RuntimeError("nope")
-    )
+    fake = FakeBackendConnection(name="bad", raise_on_start=RuntimeError("nope"))
     cfg = _config([{"name": "bad", "transport": "stdio", "command": "x"}])
-    mgr = BackendConnectionManager(
-        config=cfg, backend_factory=lambda c: fake
-    )
+    mgr = BackendConnectionManager(config=cfg, backend_factory=lambda c: fake)
     await mgr.start_all()
     assert len(mgr.list_backends()) == 1
     assert mgr.get_backend("bad").state == BackendState.UNHEALTHY
@@ -105,9 +98,7 @@ async def test_reload_removes_backend() -> None:
 async def test_reload_modifies_backend_by_restarting() -> None:
     fake = FakeBackendConnection(name="github")
     cfg = _config([{"name": "github", "transport": "stdio", "command": "x"}])
-    mgr = BackendConnectionManager(
-        config=cfg, backend_factory=lambda c: fake
-    )
+    mgr = BackendConnectionManager(config=cfg, backend_factory=lambda c: fake)
     await mgr.start_all()
     assert fake.start_count == 1
 
@@ -121,9 +112,7 @@ async def test_reload_modifies_backend_by_restarting() -> None:
 async def test_reload_keeps_unchanged_backend_alive() -> None:
     fake = FakeBackendConnection(name="github")
     cfg = _config([{"name": "github", "transport": "stdio", "command": "x"}])
-    mgr = BackendConnectionManager(
-        config=cfg, backend_factory=lambda c: fake
-    )
+    mgr = BackendConnectionManager(config=cfg, backend_factory=lambda c: fake)
     await mgr.start_all()
     same_cfg = _config([{"name": "github", "transport": "stdio", "command": "x"}])
     await mgr.reload(same_cfg)
@@ -135,10 +124,10 @@ async def test_reload_partial_failure_does_not_roll_back_others() -> None:
     cfg = _config([{"name": "github", "transport": "stdio", "command": "x"}])
     mgr = BackendConnectionManager(
         config=cfg,
-        backend_factory=lambda c: FakeBackendConnection(name=c.name)
-        if c.name == "github"
-        else FakeBackendConnection(
-            name=c.name, raise_on_start=RuntimeError("fail")
+        backend_factory=lambda c: (
+            FakeBackendConnection(name=c.name)
+            if c.name == "github"
+            else FakeBackendConnection(name=c.name, raise_on_start=RuntimeError("fail"))
         ),
     )
     await mgr.start_all()
@@ -170,9 +159,7 @@ async def test_reload_sse_header_change_restarts() -> None:
             }
         ]
     )
-    mgr = BackendConnectionManager(
-        config=cfg, backend_factory=lambda c: fake
-    )
+    mgr = BackendConnectionManager(config=cfg, backend_factory=lambda c: fake)
     await mgr.start_all()
 
     new_cfg = _config(

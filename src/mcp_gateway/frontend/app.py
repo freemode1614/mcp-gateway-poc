@@ -71,9 +71,7 @@ def build_app(*, manager: BackendConnectionManager) -> FastAPI:
         return EventSourceResponse(event_generator())
 
     @app.post("/messages", name="messages_endpoint")
-    async def messages_endpoint(
-        request: Request, payload: JsonRpcRequest
-    ) -> Response:
+    async def messages_endpoint(request: Request, payload: JsonRpcRequest) -> Response:
         return await _dispatch(request, payload, router, manager)
 
     @app.get("/health")
@@ -91,9 +89,7 @@ def build_app(*, manager: BackendConnectionManager) -> FastAPI:
             return JSONResponse({"status": "ok", "backends": statuses})
         if any_healthy:
             return JSONResponse({"status": "degraded", "backends": statuses})
-        return JSONResponse(
-            {"status": "down", "backends": statuses}, status_code=503
-        )
+        return JSONResponse({"status": "down", "backends": statuses}, status_code=503)
 
     return app
 
@@ -178,9 +174,7 @@ async def _dispatch(
             duration_ms=duration_ms,
             status="error",
         )
-        return _error_response(
-            payload.id, ERROR_INTERNAL, f"internal error: {exc}"
-        )
+        return _error_response(payload.id, ERROR_INTERNAL, f"internal error: {exc}")
 
     duration_ms = round((time.perf_counter() - started) * 1000, 2)
     if method == "tools/call":
@@ -202,9 +196,7 @@ async def _dispatch(
             duration_ms=duration_ms,
             status="ok",
         )
-    return JSONResponse(
-        {"jsonrpc": "2.0", "id": payload.id, "result": result}
-    )
+    return JSONResponse({"jsonrpc": "2.0", "id": payload.id, "result": result})
 
 
 def _build_initialize_result(manager: BackendConnectionManager) -> dict[str, Any]:
@@ -271,9 +263,7 @@ def _call_tool_result_to_json(result: mcp_types.CallToolResult) -> dict[str, Any
             )
         elif isinstance(item, mcp_types.EmbeddedResource):
             resource = item.resource
-            content.append(
-                {"type": "resource", "resource": _resource_to_json(resource)}
-            )
+            content.append({"type": "resource", "resource": _resource_to_json(resource)})
         else:
             content.append({"type": "unknown", "raw": str(item)})
     return {"content": content, "isError": bool(result.is_error)}

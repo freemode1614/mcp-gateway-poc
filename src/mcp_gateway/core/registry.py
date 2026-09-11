@@ -19,7 +19,9 @@ class CatalogEntry:
 
     @property
     def kind(self) -> str:
-        return "tool" if "." in self.prefixed_name and "://" not in self.prefixed_name else "resource"
+        return (
+            "tool" if "." in self.prefixed_name and "://" not in self.prefixed_name else "resource"
+        )
 
 
 class Registry:
@@ -45,10 +47,10 @@ class Registry:
                         f"{backend_name!r}"
                     )
                 schema = (
-                    tool.inputSchema
-                    if isinstance(getattr(tool, "inputSchema", None), dict)
-                    else tool.input_schema
+                    tool.input_schema
                     if isinstance(getattr(tool, "input_schema", None), dict)
+                    else getattr(tool, "inputSchema", None)
+                    if isinstance(getattr(tool, "inputSchema", None), dict)
                     else {}
                 )
                 if not isinstance(schema, dict):
@@ -69,9 +71,11 @@ class Registry:
             self._purge_backend_resources_locked(backend_name)
             for resource in resources:
                 prefixed = _prefix_resource_uri(backend_name, str(resource.uri))
-                mime = getattr(resource, "mime_type", None) or getattr(
-                    resource, "mimeType", None
-                ) or ""
+                mime = (
+                    getattr(resource, "mime_type", None)
+                    or getattr(resource, "mimeType", None)
+                    or ""
+                )
                 self._resources[prefixed] = CatalogEntry(
                     prefixed_name=prefixed,
                     backend_name=backend_name,

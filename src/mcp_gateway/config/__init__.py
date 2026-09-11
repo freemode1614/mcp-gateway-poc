@@ -71,9 +71,7 @@ class StdioBackendConfig(BaseModel):
     @classmethod
     def _name_format(cls, value: str) -> str:
         if not NAME_PATTERN.fullmatch(value):
-            raise ValueError(
-                f"invalid backend name {value!r}: must match {NAME_PATTERN.pattern}"
-            )
+            raise ValueError(f"invalid backend name {value!r}: must match {NAME_PATTERN.pattern}")
         return value
 
     @field_validator("startup_timeout_s")
@@ -95,9 +93,7 @@ class SseBackendConfig(BaseModel):
     @classmethod
     def _name_format(cls, value: str) -> str:
         if not NAME_PATTERN.fullmatch(value):
-            raise ValueError(
-                f"invalid backend name {value!r}: must match {NAME_PATTERN.pattern}"
-            )
+            raise ValueError(f"invalid backend name {value!r}: must match {NAME_PATTERN.pattern}")
         return value
 
     @field_validator("url")
@@ -123,7 +119,7 @@ class GatewayConfig(BaseModel):
     backends: list[BackendConfig] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _check_unique_backend_names(self) -> "GatewayConfig":
+    def _check_unique_backend_names(self) -> GatewayConfig:
         seen: set[str] = set()
         for backend in self.backends:
             if backend.name in seen:
@@ -159,23 +155,17 @@ def _interpolate_backend(backend: BackendConfig) -> BackendConfig:
             key: interpolate_env(val, source=f"env.{key}", backend_name=backend.name)
             for key, val in backend.env.items()
         }
-        new_command = interpolate_env(
-            backend.command, source="command", backend_name=backend.name
-        )
+        new_command = interpolate_env(backend.command, source="command", backend_name=backend.name)
         new_args = [
             interpolate_env(arg, source=f"args[{i}]", backend_name=backend.name)
             for i, arg in enumerate(backend.args)
         ]
-        return backend.model_copy(
-            update={"env": new_env, "command": new_command, "args": new_args}
-        )
+        return backend.model_copy(update={"env": new_env, "command": new_command, "args": new_args})
     new_headers = {
         key: interpolate_env(val, source=f"headers.{key}", backend_name=backend.name)
         for key, val in backend.headers.items()
     }
-    new_url = interpolate_env(
-        backend.url, source="url", backend_name=backend.name
-    )
+    new_url = interpolate_env(backend.url, source="url", backend_name=backend.name)
     return backend.model_copy(update={"headers": new_headers, "url": new_url})
 
 
@@ -205,9 +195,7 @@ def load_config(path: Path) -> GatewayConfig:
         raise ValueError("config.backends must be a list")
     try:
         backends = [_coerce_backend(b) for b in backends_raw]
-        config = GatewayConfig.model_validate(
-            {"gateway": gateway_block, "backends": backends}
-        )
+        config = GatewayConfig.model_validate({"gateway": gateway_block, "backends": backends})
     except ValidationError as exc:
         raise ValueError(f"invalid config: {exc}") from exc
     interpolated = [_interpolate_backend(b) for b in config.backends]

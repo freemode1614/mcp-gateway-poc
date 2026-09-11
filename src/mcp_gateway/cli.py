@@ -63,9 +63,7 @@ def _resolve_config_path(explicit: Path | None) -> Path:
     for candidate in candidates:
         if candidate.is_file():
             return candidate
-    raise SystemExit(
-        "No config file found. Tried: " + ", ".join(str(p) for p in candidates)
-    )
+    raise SystemExit("No config file found. Tried: " + ", ".join(str(p) for p in candidates))
 
 
 async def _run(args: argparse.Namespace) -> int:
@@ -73,11 +71,17 @@ async def _run(args: argparse.Namespace) -> int:
     config = load_config(config_path)
 
     if args.host:
-        config = config.model_copy(update={"gateway": config.gateway.model_copy(update={"host": args.host})})
+        config = config.model_copy(
+            update={"gateway": config.gateway.model_copy(update={"host": args.host})}
+        )
     if args.port is not None:
-        config = config.model_copy(update={"gateway": config.gateway.model_copy(update={"port": args.port})})
+        config = config.model_copy(
+            update={"gateway": config.gateway.model_copy(update={"port": args.port})}
+        )
     if args.log_level:
-        config = config.model_copy(update={"gateway": config.gateway.model_copy(update={"log_level": args.log_level})})
+        config = config.model_copy(
+            update={"gateway": config.gateway.model_copy(update={"log_level": args.log_level})}
+        )
 
     configure_logging(config.gateway.log_level)
     logger.info(

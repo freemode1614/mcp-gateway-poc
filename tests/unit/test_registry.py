@@ -17,9 +17,7 @@ def _tool(name: str, schema: dict | None = None) -> mcp_types.Tool:
 
 
 def _resource(uri: str, name: str = "r") -> mcp_types.Resource:
-    return mcp_types.Resource(
-        uri=uri, name=name, description="d", mimeType="text/plain"
-    )
+    return mcp_types.Resource(uri=uri, name=name, description="d", mimeType="text/plain")
 
 
 async def test_prefix_applied_to_tool_names() -> None:
@@ -83,9 +81,7 @@ async def test_resource_uri_lookup_roundtrip() -> None:
 
 
 async def test_catalog_entry_frozen() -> None:
-    e = CatalogEntry(
-        prefixed_name="x.y", backend_name="x", real_name="y", schema={}
-    )
+    e = CatalogEntry(prefixed_name="x.y", backend_name="x", real_name="y", schema={})
     with pytest.raises((AttributeError, Exception)):
         e.real_name = "z"  # type: ignore[misc]
 
@@ -107,9 +103,7 @@ async def test_duplicate_prefixed_name_impossible_after_purge() -> None:
 def test_catalog_entry_kind_property() -> None:
     e1 = CatalogEntry(prefixed_name="x.y", backend_name="x", real_name="y", schema={})
     assert e1.kind == "tool"
-    e2 = CatalogEntry(
-        prefixed_name="x://y", backend_name="x", real_name="y", schema={}
-    )
+    e2 = CatalogEntry(prefixed_name="x://y", backend_name="x", real_name="y", schema={})
     assert e2.kind == "resource"
 
 

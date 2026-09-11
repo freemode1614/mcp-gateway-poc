@@ -7,7 +7,7 @@ from typing import Any
 
 from mcp import types as mcp_types
 
-from .connection import BackendConnection, BackendState
+from .connection import BackendState
 from .stdio import BackendStartupError
 
 
@@ -62,9 +62,7 @@ class FakeBackendConnection:
     async def list_tools(self) -> list[mcp_types.Tool]:
         return list(self.tools)
 
-    async def call_tool(
-        self, name: str, arguments: dict[str, Any]
-    ) -> mcp_types.CallToolResult:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> mcp_types.CallToolResult:
         self.call_log.append((name, arguments))
         if self.raise_on_call_tool is not None:
             raise self.raise_on_call_tool
@@ -72,7 +70,7 @@ class FakeBackendConnection:
             return self.call_tool_result
         return mcp_types.CallToolResult(
             content=[mcp_types.TextContent(type="text", text="ok")],
-            isError=False,
+            is_error=False,
         )
 
     async def list_resources(self) -> list[mcp_types.Resource]:
@@ -85,11 +83,7 @@ class FakeBackendConnection:
         if self.read_resource_result is not None:
             return self.read_resource_result
         return mcp_types.ReadResourceResult(
-            contents=[
-                mcp_types.TextResourceContents(
-                    uri=uri, mimeType="text/plain", text="ok"
-                )
-            ]
+            contents=[mcp_types.TextResourceContents(uri=uri, mime_type="text/plain", text="ok")]
         )
 
 

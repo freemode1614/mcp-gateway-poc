@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-import sys
 from pathlib import Path
 
 import pytest
@@ -18,9 +16,7 @@ def test_parser_has_config_host_port() -> None:
     assert args.host is None
     assert args.port is None
 
-    args = parser.parse_args(
-        ["--config", "x.yaml", "--host", "0.0.0.0", "--port", "9000"]
-    )
+    args = parser.parse_args(["--config", "x.yaml", "--host", "0.0.0.0", "--port", "9000"])
     assert args.host == "0.0.0.0"
     assert args.port == 9000
 

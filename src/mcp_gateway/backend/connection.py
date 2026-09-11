@@ -9,7 +9,7 @@ from typing import Any, Protocol, runtime_checkable
 from mcp import types as mcp_types
 
 
-class BackendState(str, enum.Enum):
+class BackendState(enum.StrEnum):
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     PERMANENTLY_FAILED = "permanently_failed"
@@ -74,9 +74,7 @@ class BackendConnection(Protocol):
         """Return the backend's tools with their native names (no prefix)."""
         ...
 
-    async def call_tool(
-        self, name: str, arguments: dict[str, Any]
-    ) -> mcp_types.CallToolResult:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> mcp_types.CallToolResult:
         """Invoke a tool on this backend using the backend-native name."""
         ...
 

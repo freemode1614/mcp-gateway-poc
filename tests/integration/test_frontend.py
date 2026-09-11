@@ -15,19 +15,13 @@ from mcp_gateway.frontend import build_app
 
 
 def _config(backends: list[dict[str, Any]]) -> GatewayConfig:
-    return GatewayConfig.model_validate(
-        {"gateway": {"port": 8765}, "backends": backends}
-    )
+    return GatewayConfig.model_validate({"gateway": {"port": 8765}, "backends": backends})
 
 
 def _make_app(backends: list[FakeBackendConnection]) -> tuple[Any, BackendConnectionManager]:
     fake_by_name = {b.name: b for b in backends}
-    cfg = _config(
-        [{"name": b.name, "transport": "stdio", "command": "x"} for b in backends]
-    )
-    mgr = BackendConnectionManager(
-        config=cfg, backend_factory=lambda c: fake_by_name[c.name]
-    )
+    cfg = _config([{"name": b.name, "transport": "stdio", "command": "x"} for b in backends])
+    mgr = BackendConnectionManager(config=cfg, backend_factory=lambda c: fake_by_name[c.name])
     app = build_app(manager=mgr)
     return app, mgr
 
@@ -58,9 +52,7 @@ async def client() -> Any:
     await mgr.start_all()
     try:
         transport = httpx.ASGITransport(app=app)
-        async with httpx.AsyncClient(
-            transport=transport, base_url="http://test"
-        ) as c:
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
             yield c, mgr, backends
     finally:
         await mgr.stop_all()
@@ -232,9 +224,7 @@ async def test_request_id_generated_when_absent(client: Any) -> None:
 
 async def test_health_degraded_with_partial_backends() -> None:
     healthy = FakeBackendConnection(name="github")
-    failing = FakeBackendConnection(
-        name="bad", raise_on_start=RuntimeError("nope")
-    )
+    failing = FakeBackendConnection(name="bad", raise_on_start=RuntimeError("nope"))
     app, mgr = _make_app([healthy, failing])
     await mgr.start_all()
     try:
@@ -251,9 +241,7 @@ async def test_health_degraded_with_partial_backends() -> None:
 
 
 async def test_health_down_when_all_backends_unhealthy() -> None:
-    failing = FakeBackendConnection(
-        name="bad", raise_on_start=RuntimeError("nope")
-    )
+    failing = FakeBackendConnection(name="bad", raise_on_start=RuntimeError("nope"))
     app, mgr = _make_app([failing])
     await mgr.start_all()
     try:

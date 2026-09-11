@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import sys
-from typing import Any
-
 from contextlib import AbstractAsyncContextManager
 from typing import Any
 
-from mcp import ClientSession, types as mcp_types
+from mcp import ClientSession
+from mcp import types as mcp_types
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 from ..config import StdioBackendConfig
@@ -52,12 +50,15 @@ class StdioBackend(BackendConnection):
         self._stop_event.clear()
         params = self._server_parameters()
         try:
-            self._streams_cm = stdio_client(params, errlog=sys.stderr)
-            streams = await asyncio.wait_for(
-                self._streams_cm.__aenter__(),
-                timeout=self._config.startup_timeout_s,
-            )
-        except (TimeoutError, OSError) as exc:
+            async with asyncio.timeout(self._config.startup_timeout_s):
+                self._streams_cm = stdio_client(params, errlog=sys.stderr)
+                streams = await self._streams_cm.__aenter__()
+        except TimeoutError as exc:
+            self._state = BackendState.UNHEALTHY
+            raise BackendStartupError(
+                f"stdio backend {self.name!r} failed to start: timeout"
+            ) from exc
+        except (OSError, Exception) as exc:
             self._state = BackendState.UNHEALTHY
             raise BackendStartupError(
                 f"stdio backend {self.name!r} failed to start: {exc}"
@@ -65,15 +66,17 @@ class StdioBackend(BackendConnection):
         read_stream, write_stream = streams
         self._session_cm = ClientSession(read_stream, write_stream)
         try:
-            session = await asyncio.wait_for(
-                self._session_cm.__aenter__(),
-                timeout=self._config.startup_timeout_s,
-            )
-            await asyncio.wait_for(
-                session.initialize(),
-                timeout=self._config.startup_timeout_s,
-            )
-        except (TimeoutError, Exception) as exc:
+            async with asyncio.timeout(self._config.startup_timeout_s):
+                session = await self._session_cm.__aenter__()
+                await session.initialize()
+        except TimeoutError as exc:
+            await self._close_session()
+            await self._close_streams()
+            self._state = BackendState.UNHEALTHY
+            raise BackendStartupError(
+                f"stdio backend {self.name!r} initialize failed: timeout"
+            ) from exc
+        except Exception as exc:
             await self._close_session()
             await self._close_streams()
             self._state = BackendState.UNHEALTHY
@@ -100,37 +103,34 @@ class StdioBackend(BackendConnection):
         )
 
     async def list_tools(self) -> list[mcp_types.Tool]:
-        self._assert_healthy()
-        result = await self._session.list_tools()
+        session = self._session_or_raise()
+        result = await session.list_tools()
         return list(result.tools)
 
-    async def call_tool(
-        self, name: str, arguments: dict[str, Any]
-    ) -> mcp_types.CallToolResult:
-        self._assert_healthy()
-        return await self._session.call_tool(name, arguments)
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> mcp_types.CallToolResult:
+        session = self._session_or_raise()
+        return await session.call_tool(name, arguments)
 
     async def list_resources(self) -> list[mcp_types.Resource]:
-        self._assert_healthy()
-        result = await self._session.list_resources()
+        session = self._session_or_raise()
+        result = await session.list_resources()
         return list(result.resources)
 
     async def read_resource(self, uri: str) -> mcp_types.ReadResourceResult:
-        self._assert_healthy()
-        return await self._session.read_resource(uri)
+        session = self._session_or_raise()
+        return await session.read_resource(uri)
 
-    def _assert_healthy(self) -> None:
+    def _session_or_raise(self) -> ClientSession:
         if self._session is None or self._state != BackendState.HEALTHY:
             raise RuntimeError(f"backend {self.name!r} is not healthy")
+        return self._session
 
     async def _close_session(self) -> None:
         if self._session_cm is not None:
             try:
                 await self._session_cm.__aexit__(None, None, None)
             except Exception as exc:
-                logger.warning(
-                    "session_close_error", backend=self.name, error=str(exc)
-                )
+                logger.warning("session_close_error", backend=self.name, error=str(exc))
             self._session_cm = None
             self._session = None
 
@@ -139,9 +139,7 @@ class StdioBackend(BackendConnection):
             try:
                 await self._streams_cm.__aexit__(None, None, None)
             except Exception as exc:
-                logger.warning(
-                    "stdio_streams_close_error", backend=self.name, error=str(exc)
-                )
+                logger.warning("stdio_streams_close_error", backend=self.name, error=str(exc))
             self._streams_cm = None
 
 

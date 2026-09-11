@@ -34,9 +34,7 @@ class Router:
                 backend=entry.backend_name, tool=entry.real_name, message=str(exc)
             ) from exc
 
-    async def dispatch_resource_read(
-        self, prefixed_uri: str
-    ) -> mcp_types.ReadResourceResult:
+    async def dispatch_resource_read(self, prefixed_uri: str) -> mcp_types.ReadResourceResult:
         entry = self._registry.lookup_resource(prefixed_uri)
         if entry is None:
             raise UnknownToolError(prefixed_uri)

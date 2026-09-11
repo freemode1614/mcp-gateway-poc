@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import socket
 import sys
 from pathlib import Path
@@ -45,9 +44,7 @@ async def running_gateway():
     app = build_app(manager=mgr)
     try:
         transport = httpx.ASGITransport(app=app)
-        async with httpx.AsyncClient(
-            transport=transport, base_url="http://test"
-        ) as c:
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
             yield c, mgr
     finally:
         await mgr.stop_all()

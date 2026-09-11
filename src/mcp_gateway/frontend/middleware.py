@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import re
 import time
-from typing import Awaitable, Callable
-
 import uuid
+from collections.abc import Awaitable, Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
