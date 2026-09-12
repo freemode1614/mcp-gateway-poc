@@ -23,11 +23,11 @@
 - [ ] 3.3 Document `make -C packages/web-api migrate` and add the target to the root Makefile.
 - [ ] 3.4 Verify `alembic upgrade head` on a fresh Postgres creates the table and matches the model.
 
-## 4. Docker Compose for local Postgres
+## 4. Docker Compose (Postgres + web-api + gateway, single file)
 
-- [ ] 4.1 Add `docker-compose.yml` at the repo root with one `postgres:16-alpine` service, named volume `mcp-gateway-pg-data`, port mapping `127.0.0.1:5432:5432`, env from `.env`.
-- [ ] 4.2 Add `make db-up` target that runs `docker compose up -d postgres` and `make db-down` that tears it down.
-- [ ] 4.3 Verify a clean OrbStack install: `make db-up && make db-migrate && make -C packages/web-api run` connects and serves `/admin/`.
+- [ ] 4.1 Add `docker-compose.yml` at the repo root with three services: `postgres` (`postgres:16-alpine`, named volume `mcp-gateway-pg-data`, port `127.0.0.1:5432:5432`), `web-api` (builds from `packages/web-api/Dockerfile`, port `127.0.0.1:8080:8080`, depends_on postgres with a healthcheck), and `gateway` (builds from `packages/mcp-gateway/Dockerfile`, port `127.0.0.1:8765:8765`, depends_on web-api with a healthcheck, env `MCP_GATEWAY_CONFIG_BACKEND=web`, `MCP_GATEWAY_WEB_URL=http://web-api:8080`). All env wired from `.env`.
+- [ ] 4.2 Add `make db-up` target that runs `docker compose up -d postgres` (just Postgres for local dev without containers) and `make up` that brings up all three. Add `make down` and `make logs`.
+- [ ] 4.3 Verify a clean OrbStack install: `make up` brings everything, the gateway's `/health` returns "ok", `curl http://127.0.0.1:8080/admin/` returns the SPA's index.html.
 
 ## 5. `/web/` — React SPA
 
@@ -69,3 +69,13 @@
 - [ ] 8.5 Update `AGENTS.md` only if a new layering rule appears (e.g. note that `packages/web-api/` follows §7.1's monorepo target, while `/web/` is intentionally outside the Python workspace).
 - [ ] 8.6 Re-run `make format lint typecheck test` from the repo root and confirm: 92 gateway tests still pass, `packages/web-api` unit tests pass.
 - [ ] 8.7 Archive the change via `openspec archive add-web-managed-backends --yes`.
+
+## 9. Production deploy files
+
+- [ ] 9.1 Add `packages/web-api/Dockerfile`: multi-stage build. Stage 1 (`node:22-alpine`) runs `npm ci && npm run build` inside `/web/` and copies `/web/dist/` into `/build/web/`. Stage 2 (`python:3.13-slim`) installs `packages/web-api/[web]` extras, copies the prebuilt SPA into `/app/static`, runs `uvicorn web_backend.app:app` on port 8080. Non-root user, `HEALTHCHECK` hitting `/healthz`.
+- [ ] 9.2 Add `packages/mcp-gateway/Dockerfile`: single-stage `python:3.13-slim`, installs the gateway + the runtime deps needed for SSE backend, runs `mcp-gateway` on port 8765. Non-root user, `HEALTHCHECK` hitting `/health`.
+- [ ] 9.3 Wire the two Dockerfiles into `docker-compose.yml` (task 4.1) under `build:` blocks pointing at each package's Dockerfile. Add `MCP_GATEWAY_CONFIG_BACKEND=web`, `MCP_GATEWAY_WEB_URL=http://web-api:8080`, `DATABASE_URL=postgresql+asyncpg://postgres:5432/mcp_gateway` and other env from `.env`.
+- [ ] 9.4 Add `depends_on` healthchecks: gateway waits for web-api's `/healthz` to be 200 before starting; web-api waits for postgres' `pg_isready`. Document the timeout values in `docker-compose.yml` comments.
+- [ ] 9.5 Add `make image-web-api` and `make image-gateway` that build each image separately (useful for CI), and `make push-web-api` / `make push-gateway` placeholders that take a `REGISTRY` env var.
+- [ ] 9.6 Update root `README.md` "Web UI (optional)" section with a "Running everything in containers" subsection that documents `make up`, `make down`, and the `docker compose logs -f` debugging flow.
+- [ ] 9.7 Verify end-to-end: from a clean shell, `git clone`, `cp .env.example .env`, `make up`, `curl http://127.0.0.1:8080/admin/` returns the SPA HTML, `curl http://127.0.0.1:8765/health` returns `{"status":"ok"}`, and editing a backend via the SPA causes a `POST /admin/reload` that the gateway logs as `reload_applied`.
