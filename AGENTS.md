@@ -2,6 +2,45 @@
 
 This file governs **code quality**, **coding style** (Google Python Style), and **tooling** for the `mcp-gateway-poc` codebase. Both human contributors and AI coding agents **must** follow it.
 
+## 0. Project Status (as of last session)
+
+The repository is a local MCP gateway PoC plus a web-managed backends UI
+in progress. The change proposals below are in flight.
+
+**Recent git history (last few commits):**
+```
+14ae697 feat(openspec): add task group 9 — production deploy files
+510c414 refactor(openspec): swap ESLint+Prettier for Biome, bump router to v8
+db99050 feat(openspec): add change proposal for web-managed backends
+5139fee docs(arch): add mcp-gateway architecture diagram
+ea686ac chore(makefile): switch typecheck target from mypy to ty
+01d0b7e feat(observability): add metrics module with counters and Prometheus exposition
+4a0d607 fix(backend/sse): migrate to streamable_http transport and bypass system proxy
+f30ada5 style: apply ruff format and fix lint issues across codebase
+44a9ba7 chore: replace mypy with ty, document quality gates in AGENTS.md
+```
+
+**Quality gates (current):** `make format` `make lint` `make typecheck`
+`make test` all green. 92 tests passing, ruff 0.16.6, ty 0.0.80, Python
+3.13.
+
+**In-flight OpenSpec change:** `openspec/changes/add-web-managed-backends/`
+(apply-ready). Replaces YAML-based backend config with a web-managed
+store. Highlights:
+
+- `/web/` (Node SPA, **React 19** + Vite + TS + TanStack Query +
+  react-router-dom@8 + **Biome** lint/format)
+- `packages/web-api/` (Python: FastAPI + SQLAlchemy 2.x async + Alembic
+  + asyncpg; serves `/admin/` and `/api/*`)
+- `docker-compose.yml` at repo root: **postgres + web-api + gateway in
+  one file**, plus per-service Dockerfiles (task group 9)
+- Gateway gains `POST /admin/reload` (loopback-only) and a
+  `ConfigBackend` selector (`yaml` default | `web` opt-in)
+- YAML remains default — existing 92 tests stay green without Postgres
+
+Run `openspec status --change add-web-managed-backends` to see current
+artifact state. Apply with `/opsx-apply`.
+
 ## 1. Quality Gates (must pass before merge)
 
 All of the following **must succeed locally** before a change is considered done:
