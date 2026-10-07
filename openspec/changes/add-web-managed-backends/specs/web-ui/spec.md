@@ -12,26 +12,26 @@ each mutation.
 
 - **WHEN** the user opens `/admin/`
 - **THEN** the page renders one row per backend with `name`, `transport`,
-  and a current health badge, fetched from `GET /api/backends` and cached
+  and a current health badge, fetched from `GET /api/v1/backends` and cached
   by TanStack Query
 
 #### Scenario: Create form persists a new backend
 
 - **WHEN** the user submits a valid create form
-- **THEN** the SPA POSTs to `/api/backends`, the new row appears in the
+- **THEN** the SPA POSTs to `/api/v1/backends`, the new row appears in the
   table without a manual refresh, and a success toast is shown
 
 #### Scenario: Edit form updates an existing backend
 
 - **WHEN** the user submits the edit form for an existing backend
-- **THEN** the SPA PUTs to `/api/backends/{name}`, the row is updated
+- **THEN** the SPA PUTs to `/api/v1/backends/{name}`, the row is updated
   in place, and a success toast is shown
 
 #### Scenario: Delete removes the backend
 
 - **WHEN** the user clicks the delete button on a backend row and
   confirms in a modal
-- **THEN** the SPA DELETEs `/api/backends/{name}`, the row disappears
+- **THEN** the SPA DELETEs `/api/v1/backends/{name}`, the row disappears
   from the table, and a success toast is shown
 
 #### Scenario: Invalid form re-renders with errors
