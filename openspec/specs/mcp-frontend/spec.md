@@ -1,7 +1,11 @@
 # mcp-frontend Specification
 
 ## Purpose
-TBD - created by archiving change mcp-gateway-poc. Update Purpose after archive.
+
+Specify the FastAPI HTTP/SSE surface that exposes MCP to clients:
+`GET /sse`, `POST /messages`, the JSON-RPC dispatch contract, and the
+standard error codes returned for unknown methods, unknown tools, and
+unavailable backends.
 ## Requirements
 ### Requirement: MCP transport over HTTP/SSE and Streamable HTTP
 

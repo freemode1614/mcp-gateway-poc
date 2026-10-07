@@ -161,15 +161,18 @@ Boundary rules:
 
 ## Spec / plan
 
-This PoC was built against the OpenSpec change at
-[`openspec/changes/mcp-gateway-poc/`](openspec/changes/mcp-gateway-poc/).
-To inspect or re-validate:
+The gateway's domain contracts live in `openspec/specs/` as five
+specifications (`backend-connection`, `configuration`, `mcp-frontend`,
+`observability`, `registry-routing`). Inspect or validate them with:
 
 ```bash
-openspec status --change mcp-gateway-poc
-openspec validate mcp-gateway-poc
-openspec show mcp-gateway-poc
+openspec list --specs
+openspec show <spec-name>
+openspec validate <spec-name>
 ```
 
-When the implementation is accepted, archive it with `/opsx-archive` to merge
-the specs into `openspec/specs/`.
+The original change proposal that produced these specs is preserved at
+[`openspec/changes/archive/2026-09-10-mcp-gateway-poc/`](openspec/changes/archive/2026-09-10-mcp-gateway-poc/)
+for historical reference. Active change proposals (e.g. the in-flight
+`add-web-managed-backends`) are listed by `openspec list` and inspected
+with `openspec show <change-name>`.

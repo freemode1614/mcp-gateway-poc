@@ -1,7 +1,10 @@
 # configuration Specification
 
 ## Purpose
-TBD - created by archiving change mcp-gateway-poc. Update Purpose after archive.
+
+Describe the YAML configuration schema the gateway loads at startup,
+including `${env:VAR}` interpolation and hot-reload semantics that
+add, remove, or restart backends on edit without dropping the rest.
 ## Requirements
 ### Requirement: YAML configuration with documented schema
 

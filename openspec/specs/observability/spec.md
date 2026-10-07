@@ -1,7 +1,10 @@
 # observability Specification
 
 ## Purpose
-TBD - created by archiving change mcp-gateway-poc. Update Purpose after archive.
+
+Define the structured-logging contract (JSON one-per-line, `request_id`
+propagation, lifecycle event names) and the per-backend health
+endpoint behavior used by operators and dashboards.
 ## Requirements
 ### Requirement: Structured JSON logging with request_id
 

@@ -1,7 +1,11 @@
 # registry-routing Specification
 
 ## Purpose
-TBD - created by archiving change mcp-gateway-poc. Update Purpose after archive.
+
+Specify how the in-memory Registry aggregates tools and resources
+across healthy backends under the `<backend>.<tool>` and
+`<backend>://<resource>` namespaces, and how the Router dispatches
+`tools/call` and `resources/read` by prefix.
 ## Requirements
 ### Requirement: Registry aggregates tools with backend prefix
 

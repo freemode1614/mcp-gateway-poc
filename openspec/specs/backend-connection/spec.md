@@ -1,7 +1,11 @@
 # backend-connection Specification
 
 ## Purpose
-TBD - created by archiving change mcp-gateway-poc. Update Purpose after archive.
+
+Define the transport-agnostic `BackendConnection` interface every MCP
+backend adapter must implement, and the lifecycle and failure semantics
+of the two supported transports: stdio subprocess and HTTP/SSE (with
+automatic restart on crash).
 ## Requirements
 ### Requirement: Unified backend connection interface
 
