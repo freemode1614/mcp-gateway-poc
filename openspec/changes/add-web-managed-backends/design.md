@@ -1,6 +1,6 @@
 ## Context
 
-`mcp-gateway-poc` is a single-package FastAPI service that aggregates MCP
+`mcp-gateway` is a single-package FastAPI service that aggregates MCP
 backends behind one HTTP/SSE endpoint, configured from a YAML file watched
 by `watchfiles`. We want a real React SPA to manage backends without
 touching YAML: list/create/edit/delete entries, persisted to PostgreSQL,

@@ -1,4 +1,4 @@
-# mcp-gateway-poc
+# mcp-gateway
 
 A local MCP Gateway that aggregates multiple MCP backend servers behind a single
 HTTP/SSE endpoint. One client connection, all tools and resources from every

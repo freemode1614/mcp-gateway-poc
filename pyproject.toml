@@ -1,5 +1,5 @@
 [project]
-name = "mcp-gateway-poc"
+name = "mcp-gateway"
 version = "0.1.0"
 description = "Local MCP Gateway that aggregates multiple MCP backend servers behind a single HTTP/SSE endpoint"
 readme = "README.md"

@@ -1,6 +1,6 @@
 # AGENTS.md — Engineering Guide for AI Agents & Contributors
 
-This file governs **code quality**, **coding style** (Google Python Style), and **tooling** for the `mcp-gateway-poc` codebase. Both human contributors and AI coding agents **must** follow it.
+This file governs **code quality**, **coding style** (Google Python Style), and **tooling** for the `mcp-gateway` codebase. Both human contributors and AI coding agents **must** follow it.
 
 ## 0. Project Status (as of last session)
 
@@ -207,7 +207,7 @@ This repository is a **uv workspace** that hosts one or more independently insta
 ### 7.1 Monorepo directory tree
 
 ```
-mcp-gateway-poc/                          # workspace root
+mcp-gateway/                              # workspace root
 ├── packages/                             # workspace members (uv workspaces)
 │   ├── mcp-gateway/                      # gateway package
 │   │   ├── pyproject.toml                # package-level deps + tooling overrides
@@ -247,7 +247,7 @@ The workspace root declares members and shared dev tooling; each package owns it
 
 ```toml
 [project]
-name = "mcp-gateway-poc-workspace"
+name = "mcp-gateway-workspace"
 version = "0.0.0"
 requires-python = ">=3.13"
 
